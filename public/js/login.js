@@ -36,9 +36,26 @@ window.addEventListener('load', function() {
     
     console.log(url);
     
-    //return;
-    
     window.open(url, '_login', 'top=' + (screen.height / 2 - 275) + ',left=' + (screen.width / 2 - 250) + ',width=500,height=550');
   });
+  
+  const bc = new BroadcastChannel('authorization_response')
+  bc.onmessage = (event) => {
+    console.log('got broadcast event');
+    console.log(event.data);
+    
+    
+    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/login/oauth2-code/twitter', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('CSRF-Token', csrfToken);
+    xhr.onload = function() {
+      console.log(xhr.responseText);
+      var json = JSON.parse(xhr.responseText);
+      window.location.href = json.location;
+    };
+    xhr.send(JSON.stringify(event.data));
+  }
   
 });

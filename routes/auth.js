@@ -120,6 +120,15 @@ router.get('/oauth2/redirect/twitter', function(req, res, next) {
   res.render('oauth2/redirect');
 });
 
+router.post('/login/oauth2-code/twitter', passport.authenticate('twitter', {
+  failWithError: true
+}), function(req, res, next) {
+  res.json({ ok: true, location: '/' });
+}, function(err, req, res, next) {
+  console.log('ERROR');
+  console.log(err);
+});
+
 /*
 router.get('/oauth2/redirect/twitter', passport.authenticate('twitter', {
   successReturnToOrRedirect: '/',
