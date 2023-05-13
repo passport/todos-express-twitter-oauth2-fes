@@ -6,6 +6,11 @@ function randomString(length) {
    return result;
  }
 
+function base64URLEncode(string) {
+  return btoa(String.fromCharCode.apply(null, new Uint8Array(string)))
+    .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+}
+
 
 window.addEventListener('load', function() {
   
@@ -31,21 +36,11 @@ window.addEventListener('load', function() {
     const data = encoder.encode(codeVerifier);
     window.crypto.subtle.digest("SHA-256", data)
       .then(function(digest) {
-        console.log('DIGESTED!');
-        console.log(digest);
-        
         requests[state] = {
           verifier: codeVerifier
         }
         
-        
-        //var chal = btoa(String.fromCharCode.apply(null, new Uint16Array(data)))
-        var chal = btoa(String.fromCharCode.apply(null, new Uint8Array(data)))
-        .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-        console.log(chal);
-        
-        //var codeChallenge = 'CDADwL30MGrmZ3JyCoihqImCAB_qMg3k'
-        var codeChallenge = chal;
+        var codeChallenge = base64URLEncode(digest);
         var codeChallengeMethod = 'S256'
     
         var url = 'https://twitter.com/i/oauth2/authorize?'
@@ -56,8 +51,6 @@ window.addEventListener('load', function() {
               + 'state=' + encodeURIComponent(state) + '&'
               + 'code_challenge=' + encodeURIComponent(codeChallenge) + '&'
               + 'code_challenge_method=' + encodeURIComponent(codeChallengeMethod)
-    
-        console.log(url);
     
         window.open(url, '_login', 'top=' + (screen.height / 2 - 275) + ',left=' + (screen.width / 2 - 250) + ',width=500,height=550');
       })
