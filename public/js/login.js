@@ -10,7 +10,7 @@ function stringifyURIQuery(obj) {
   var str = [];
   for (var p in obj) {
     if (obj.hasOwnProperty(p)) {
-      str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+      str.push(encodeURIComponent(p) + '=' + encodeURIComponent(obj[p]));
     }
   }
   return str.join('&');
@@ -29,10 +29,9 @@ window.addEventListener('load', function() {
   document.getElementById('siw-twitter').addEventListener('click', function(event) {
     event.preventDefault();
     
-    var type = 'code';
     var clientID = document.querySelector('meta[name="twitter-client-id"]').getAttribute('content');
     var redirectURI = 'http://localhost:3000/oauth2/redirect/twitter';
-    var scope = 'users.read tweet.read';
+    var scope = [ 'users.read', 'tweet.read' ];
     var state = randomString(8);
     var verifier = randomString(43);
     
@@ -44,18 +43,17 @@ window.addEventListener('load', function() {
           verifier: verifier
         }
         
-        var challenge = encodeBase64URL(digest);
-        var challengeMethod = 'S256'
-    
         var url = 'https://twitter.com/i/oauth2/authorize?'
-              + 'response_type=' + encodeURIComponent(type) + '&'
-              + 'client_id=' + encodeURIComponent(clientID) + '&'
-              + 'redirect_uri=' + encodeURIComponent(redirectURI) + '&'
-              + 'scope=' + encodeURIComponent(scope) + '&'
-              + 'state=' + encodeURIComponent(state) + '&'
-              + 'code_challenge=' + encodeURIComponent(challenge) + '&'
-              + 'code_challenge_method=' + encodeURIComponent(challengeMethod)
-    
+          + stringifyURIQuery({
+            response_type: 'code',
+            client_id: clientID,
+            redirect_uri: redirectURI,
+            scope: scope.join(' '),
+            state: state,
+            code_challenge: encodeBase64URL(digest),
+            code_challenge_method: 'S256'
+          });
+        
         window.open(url, '_login', 'top=' + (screen.height / 2 - 275) + ',left=' + (screen.width / 2 - 250) + ',width=500,height=550');
       });
   });
@@ -78,6 +76,9 @@ window.addEventListener('load', function() {
     
     var data = event.data;
     data.code_verifier = req.verifier;
+    
+    // TODO: put scope here
+    // TODO: put redirect URI here
     
     var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     var xhr = new XMLHttpRequest();
