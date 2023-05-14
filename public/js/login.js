@@ -1,10 +1,10 @@
 function randomString(length) {
-   var CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  var CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 
-   var result = '';
-   for (var i = length; i > 0; --i) { result += CHARS[Math.floor(Math.random() * CHARS.length)]; }
-   return result;
- }
+  var result = '';
+  for (var i = length; i > 0; --i) { result += CHARS[Math.floor(Math.random() * CHARS.length)]; }
+  return result;
+}
 
 function encodeBase64URL(string) {
   return btoa(String.fromCharCode.apply(null, new Uint8Array(string)))
