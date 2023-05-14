@@ -6,8 +6,18 @@ function randomString(length) {
   return result;
 }
 
-function encodeBase64URL(string) {
-  return btoa(String.fromCharCode.apply(null, new Uint8Array(string)))
+function stringifyURIQuery(obj) {
+  var str = [];
+  for (var p in obj) {
+    if (obj.hasOwnProperty(p)) {
+      str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+    }
+  }
+  return str.join('&');
+}
+
+function encodeBase64URL(str) {
+  return btoa(String.fromCharCode.apply(null, new Uint8Array(str)))
     .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 }
 
