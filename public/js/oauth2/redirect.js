@@ -10,25 +10,11 @@ function parseQuery(queryString) {
 
 
 window.addEventListener('load', function() {
-  console.log('REDIRECT LOAD!')
-  console.log(window.location);
-  
   var response = parseQuery(window.location.search);
-  console.log('post response:');
-  console.log(response);
-  
-  console.log(window.opener);
   
   // because window.opener is not available
   // https://twittercommunity.com/t/oauth2-authorization-via-window-open/167249
   
-  const bc = new BroadcastChannel('authorization_response')
+  var bc = new BroadcastChannel('authorization_response')
   bc.postMessage(response);
-  
-  /*
-  window.opener.postMessage({
-    type: 'authorization_response',
-    response: response
-  }, window.location.origin);
-  */
 });
