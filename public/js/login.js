@@ -21,6 +21,12 @@ function encodeBase64URL(str) {
     .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 }
 
+function digestSHA256(str) {
+  var encoder = new TextEncoder();
+  var data = encoder.encode(str);
+  return window.crypto.subtle.digest('SHA-256', data);
+}
+
 
 window.addEventListener('load', function() {
   
@@ -35,9 +41,7 @@ window.addEventListener('load', function() {
     var state = randomString(8);
     var verifier = randomString(43);
     
-    const encoder = new TextEncoder();
-    const data = encoder.encode(verifier);
-    window.crypto.subtle.digest("SHA-256", data)
+    digestSHA256(verifier)
       .then(function(digest) {
         authorizationRequests[state] = {
           verifier: verifier
@@ -53,7 +57,6 @@ window.addEventListener('load', function() {
             code_challenge: encodeBase64URL(digest),
             code_challenge_method: 'S256'
           });
-        
         window.open(url, '_login', 'top=' + (screen.height / 2 - 275) + ',left=' + (screen.width / 2 - 250) + ',width=500,height=550');
       });
   });
