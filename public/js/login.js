@@ -6,7 +6,7 @@ function randomString(length) {
    return result;
  }
 
-function base64URLEncode(string) {
+function encodeBase64URL(string) {
   return btoa(String.fromCharCode.apply(null, new Uint8Array(string)))
     .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 }
@@ -14,59 +14,52 @@ function base64URLEncode(string) {
 
 window.addEventListener('load', function() {
   
-  var requests = {};
+  var authorizationRequests = {};
   
   document.getElementById('siw-twitter').addEventListener('click', function(event) {
     event.preventDefault();
     
+    var type = 'code';
     var clientID = document.querySelector('meta[name="twitter-client-id"]').getAttribute('content');
     var redirectURI = 'http://localhost:3000/oauth2/redirect/twitter';
-    var scope = 'users.read tweet.read users.read';
-    
-    console.log(event.target.href)
-    console.log(clientID)
-    
+    var scope = 'users.read tweet.read';
     var state = randomString(8);
-    console.log(state);
-    
-    
-    var codeVerifier = randomString(43);
+    var verifier = randomString(43);
     
     const encoder = new TextEncoder();
-    const data = encoder.encode(codeVerifier);
+    const data = encoder.encode(verifier);
     window.crypto.subtle.digest("SHA-256", data)
       .then(function(digest) {
-        requests[state] = {
-          verifier: codeVerifier
+        authorizationRequests[state] = {
+          verifier: verifier
         }
         
-        var codeChallenge = base64URLEncode(digest);
-        var codeChallengeMethod = 'S256'
+        var challenge = encodeBase64URL(digest);
+        var challengeMethod = 'S256'
     
         var url = 'https://twitter.com/i/oauth2/authorize?'
-              + 'response_type=code&'
+              + 'response_type=' + encodeURIComponent(type) + '&'
               + 'client_id=' + encodeURIComponent(clientID) + '&'
               + 'redirect_uri=' + encodeURIComponent(redirectURI) + '&'
               + 'scope=' + encodeURIComponent(scope) + '&'
               + 'state=' + encodeURIComponent(state) + '&'
-              + 'code_challenge=' + encodeURIComponent(codeChallenge) + '&'
-              + 'code_challenge_method=' + encodeURIComponent(codeChallengeMethod)
+              + 'code_challenge=' + encodeURIComponent(challenge) + '&'
+              + 'code_challenge_method=' + encodeURIComponent(challengeMethod)
     
         window.open(url, '_login', 'top=' + (screen.height / 2 - 275) + ',left=' + (screen.width / 2 - 250) + ',width=500,height=550');
-      })
-    //const digest = await window.crypto.subtle.digest("SHA-256", data);
-    
-    
+      });
   });
   
   const bc = new BroadcastChannel('authorization_response')
   bc.onmessage = (event) => {
     console.log('got broadcast event');
     console.log(event.data);
+    console.log(event.source);
+    console.log(event);
     
-    console.log(requests);
+    console.log(authorizationRequests);
     
-    var req = requests[event.data.state];
+    var req = authorizationRequests[event.data.state];
     
     if (!req) {
       // TODO: throw error

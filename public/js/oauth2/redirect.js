@@ -17,4 +17,6 @@ window.addEventListener('load', function() {
   
   var bc = new BroadcastChannel('authorization_response')
   bc.postMessage(response);
+  
+  window.close();
 });
