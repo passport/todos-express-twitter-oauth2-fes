@@ -63,22 +63,14 @@ window.addEventListener('load', function() {
   
   const bc = new BroadcastChannel('authorization_response')
   bc.onmessage = (event) => {
-    console.log('got broadcast event');
-    console.log(event.data);
-    console.log(event.source);
-    console.log(event);
+    var response = event.data;
+    var request = authorizationRequests[response.state];
     
-    console.log(authorizationRequests);
-    
-    var req = authorizationRequests[event.data.state];
-    
-    if (!req) {
+    if (!request) {
       // TODO: throw error
     }
     
-    
-    var data = event.data;
-    data.code_verifier = req.verifier;
+    response.code_verifier = request.verifier;
     
     // TODO: put scope here
     // TODO: put redirect URI here
@@ -93,7 +85,7 @@ window.addEventListener('load', function() {
       var json = JSON.parse(xhr.responseText);
       window.location.href = json.location;
     };
-    xhr.send(JSON.stringify(data));
+    xhr.send(JSON.stringify(response));
   }
   
 });
