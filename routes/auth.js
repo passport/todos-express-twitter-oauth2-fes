@@ -1,7 +1,7 @@
 var express = require('express');
 var passport = require('passport');
 var TwitterStrategy = require('@superfaceai/passport-twitter-oauth2');
-var HybridStateStore = require('./clientstatestore');
+var HybridStateStore = require('./hybridstatestore');
 var db = require('../db');
 
 
