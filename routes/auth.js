@@ -1,7 +1,7 @@
 var express = require('express');
 var passport = require('passport');
 var TwitterStrategy = require('@superfaceai/passport-twitter-oauth2');
-var ClientSideStateStore = require('./clientstatestore');
+var HybridStateStore = require('./clientstatestore');
 var db = require('../db');
 
 
@@ -18,7 +18,7 @@ passport.use(new TwitterStrategy({
   clientType: 'confidential',
   callbackURL: '/oauth2/redirect/twitter',
   scope: [ 'users.read', 'tweet.read' ],
-  store: new ClientSideStateStore()
+  store: new HybridStateStore()
 },
 function(accessToken, refreshToken, profile, cb) {
   console.log(accessToken);

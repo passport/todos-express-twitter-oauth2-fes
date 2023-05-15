@@ -41,28 +41,27 @@ window.addEventListener('load', function() {
     var state = randomString(8);
     var verifier = randomString(43);
     
-    digestSHA256(verifier)
-      .then(function(digest) {
-        authorizationRequests[state] = {
-          verifier: verifier
-        }
-        
-        var url = 'https://twitter.com/i/oauth2/authorize?'
-          + stringifyURIQuery({
-            response_type: 'code',
-            client_id: clientID,
-            redirect_uri: redirectURI,
-            scope: scope.join(' '),
-            state: state,
-            code_challenge: encodeBase64URL(digest),
-            code_challenge_method: 'S256'
-          });
-        window.open(url, '_login', 'top=' + (screen.height / 2 - 275) + ',left=' + (screen.width / 2 - 250) + ',width=500,height=550');
-      });
+    digestSHA256(verifier).then(function(digest) {
+      authorizationRequests[state] = {
+        verifier: verifier
+      }
+      
+      var url = 'https://twitter.com/i/oauth2/authorize?'
+        + stringifyURIQuery({
+          response_type: 'code',
+          client_id: clientID,
+          redirect_uri: redirectURI,
+          scope: scope.join(' '),
+          state: state,
+          code_challenge: encodeBase64URL(digest),
+          code_challenge_method: 'S256'
+        });
+      window.open(url, '_login', 'top=' + (screen.height / 2 - 275) + ',left=' + (screen.width / 2 - 250) + ',width=500,height=550');
+    });
   });
   
-  const bc = new BroadcastChannel('authorization_response')
-  bc.onmessage = (event) => {
+  var bc = new BroadcastChannel('authorization_response')
+  bc.onmessage = function(event) {
     var response = event.data;
     var request = authorizationRequests[response.state];
     
@@ -86,6 +85,6 @@ window.addEventListener('load', function() {
       window.location.href = json.location;
     };
     xhr.send(JSON.stringify(response));
-  }
+  };
   
 });
